@@ -9,10 +9,14 @@ room.setScoreLimit(5);
 room.setTimeLimit(5);
 
 var lastTouchedPlayer = "";
+var teamsCount = new Array(0, 0, 0); //spectators, red, blue
+var bambiksInTeams = new Array(0, 0, 0); //spectators, red, blue
+var bambiks = new Array("MK1", "MK2", "MK22");
+
 
 // If there are no admins left in the room give admin to one of the remaining players.
 function updateAdmins() { 
-  // Get all players
+// Get all players
   var players = room.getPlayerList();
   if ( players.length == 0 ) return; // No players left, do nothing.
   if ( players.find((player) => player.admin) != null ) return; // There's an admin left so do nothing.
@@ -22,6 +26,8 @@ function updateAdmins() {
 room.onPlayerJoin = function(player) {
   room.sendAnnouncement( "Elo " + player.name);
   updateAdmins();
+  var scores = room.getScores();
+  handleTeamSelecting(scores);
 }
 
 room.onPlayerLeave = function(player) {
@@ -30,7 +36,6 @@ room.onPlayerLeave = function(player) {
 
 room.onTeamGoal = function() {
 	room.sendAnnouncement( "Gol! Ostatni piłki dotknął: " + lastTouchedPlayer.name);
-	
 }
 
 room.onPlayerBallKick = function(player) {
@@ -38,6 +43,47 @@ room.onPlayerBallKick = function(player) {
 }
 
 var playersThatTouchedTheBall = new Set();
+
+function handleTeamSelecting(scores){
+	var players = room.getPlayerList();
+	if (scores == null && players.length == 6){
+		for (var i = 0; i < players.length; i++){
+			setPlayerToRandomTeam(players[i]);
+		}
+	}
+}
+
+function setPlayerToRandomTeam(player) {
+	var teamId = randomIntFromInterval(1, 2)
+	var isFull = isTeamFull(teamId);
+	var isBambik = checkIfBambik(player.name);
+	
+	if (isFull) {
+		room.sendAnnouncement("Ilość graczy w team " + teamId.toString() + " jest pełna");
+		if (teamId == 1) {teamId = 2} else {teamId = 1};
+		room.sendAnnouncement("Zmiana teamu do " + teamId.toString());
+	} 
+	
+	room.setPlayerTeam(player.id, teamId);
+	teamsCount[teamId]++;
+	if (isBambik) { bambiksInTeams[teamId]++ }; 
+}
+
+function checkIfBambik(playerName){
+	return bambiks.find(bambik => bambik == playerName);
+}
+
+
+function isTeamFull(teamId){
+	var players = room.getPlayerList();
+	room.sendAnnouncement("Ilość w team " + teamId.toString() + " wynosi " + teamsCount[teamId].toString() );
+	return teamsCount[teamId] == 3;
+}
+
+
+function randomIntFromInterval(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min)
+}
 
 function pointDistance(p1, p2) {
 	var d1 = p1.x - p2.x;
