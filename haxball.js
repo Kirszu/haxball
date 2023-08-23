@@ -9,7 +9,7 @@ room.setScoreLimit(5);
 room.setTimeLimit(5);
 
 var lastTouchedPlayer = "";
-const bambiks = new Array("GżegożRasiak", "mekambe", "RomUald");
+const bambiks = new Array("GżegożRasiak", "mekambe", "RomUald", "Jarko");
 var playersInGame = new Array();
 var bambiksInGame = new Array();
 var playersThatTouchedTheBall = new Set();
