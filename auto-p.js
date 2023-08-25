@@ -18,12 +18,12 @@ export default class PlayerMessageHandler {
 
     #TryToPause(player) {
         if (this.set.has(player)) {
-            this.room.sendAnnouncement(player.name + 'już poprosił o przerwę.');
+            this.room.sendAnnouncement(player.name + ' już poprosił o przerwę.');
             return;
         }
 
         this.room.pauseGame(true);
-        this.room.sendAnnouncement(player.name + 'prosi o przerwę.');
+        this.room.sendAnnouncement(player.name + ' prosi o przerwę.');
     }
 
     #TryToUnpause(player) {
@@ -34,7 +34,7 @@ export default class PlayerMessageHandler {
         
         this.set.delete(player);
 
-        this.room.sendAnnouncement(player.name + 'wrócił z przerwy.');
+        this.room.sendAnnouncement(player.name + ' wrócił z przerwy.');
 
         if (this.set.size === 0) {
             this.room.pauseGame(false);
