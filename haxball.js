@@ -38,7 +38,7 @@ function updateAdmins() {
 }
 
 room.onPlayerJoin = function(player) {
-	room.sendAnnouncement( "Elo " + player.name);
+	room.sendAnnouncement("Elo " + player.name);
 	updateAdmins();
   
 	if (isBambik(player.name)) {
