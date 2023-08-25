@@ -1,3 +1,5 @@
+import PlayerMessageHandler from "./auto-p";
+
 var room = HBInit({
 	roomName: "RU Hax",
 	maxPlayers: 16,
@@ -7,6 +9,8 @@ var room = HBInit({
 room.setDefaultStadium("Big");
 room.setScoreLimit(5);
 room.setTimeLimit(5);
+
+const messageHandler = new PlayerMessageHandler(room);
 
 var lastTouchedPlayer = "";
 const bambiks = new Array("GżegożRasiak", "mekambe", "RomUald", "Jarko");
@@ -115,3 +119,4 @@ function handleGameStart() {
 
 room.onGameTick = handleGameTick;
 room.onGameStart = handleGameStart;
+room.onPlayerChat = messageHandler.handle;
