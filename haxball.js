@@ -10,41 +10,62 @@ room.setDefaultStadium("Big");
 room.setScoreLimit(5);
 room.setTimeLimit(5);
 
+const highPlayerCount = 6;
+const hugePlayerCount = 8;
+const redTeamId = 1;
+const blueTeamId = 2;
+const bambiks = new Array("GżegożRasiak", "mekambe", "RomUald", "Jarko");
+
 const messageHandler = new PlayerMessageHandler(room);
 
 var lastTouchedPlayer = "";
-const bambiks = new Array("GżegożRasiak", "mekambe", "RomUald", "Jarko");
 var playersInGame = new Array();
 var bambiksInGame = new Array();
 var playersThatTouchedTheBall = new Set();
 
-
 // If there are no admins left in the room give admin to one of the remaining players.
 function updateAdmins() { 
-// Get all players
-  var players = room.getPlayerList();
-  if ( players.length == 0 ) return; // No players left, do nothing.
-  if ( players.find((player) => player.admin) != null ) return; // There's an admin left so do nothing.
-  room.setPlayerAdmin(players[0].id, true); // Give admin to the first non admin player in the list
+	// Get all players
+	var players = room.getPlayerList();
+
+	if (players.length == 0) 
+		return; // No players left, do nothing.
+
+	if (players.find((player) => player.admin) != null) 
+		return; // There's an admin left so do nothing.
+
+	room.setPlayerAdmin(players[0].id, true); // Give admin to the first non admin player in the list
 }
 
 room.onPlayerJoin = function(player) {
-  room.sendAnnouncement( "Elo " + player.name);
-  updateAdmins();
+	room.sendAnnouncement( "Elo " + player.name);
+	updateAdmins();
   
-  if(isBambik(player.name)){bambiksInGame.push(player)} else {playersInGame.push(player);}
+	if (isBambik(player.name)) {
+		bambiksInGame.push(player);
+	} 
+	else {
+		playersInGame.push(player);
+	}
   
-  var scores = room.getScores();
-  if(scores == null && (bambiksInGame.length + playersInGame.length) == 6){handleTeamSelecting(shuffle(bambiksInGame), shuffle(playersInGame));}
+	var scores = room.getScores();
+	if (scores == null && (bambiksInGame.length + playersInGame.length) == highPlayerCount) {
+		handleTeamSelecting(shuffle(bambiksInGame), shuffle(playersInGame));
+	}
 }
 
 room.onPlayerLeave = function(player) {
-  updateAdmins();
-  if(isBambik(player.name)){bambiksInGame.pop(player)} else {playersInGame.pop(player);}
+	updateAdmins();
+	if (isBambik(player.name)) {
+		bambiksInGame.pop(player);
+	} 
+	else {
+		playersInGame.pop(player);
+	}
 }
 
 room.onTeamGoal = function() {
-	room.sendAnnouncement( "Gol! Ostatni piłki dotknął: " + lastTouchedPlayer.name);
+	room.sendAnnouncement("Gol! Ostatni piłki dotknął: " + lastTouchedPlayer.name);
 }
 
 room.onPlayerBallKick = function(player) {
@@ -53,29 +74,43 @@ room.onPlayerBallKick = function(player) {
 
 function handleTeamSelecting(bambiksInGame, playersInGame){
 	var teamId = randomIntFromInterval(1, 2);
+	
 	for (var i = 0; i < playersInGame.length; i++){
 		room.setPlayerTeam(playersInGame[i].id, teamId);
-		if (teamId == 1) {teamId = 2} else {teamId = 1};	
+		
+		if (teamId == redTeamId) {
+			teamId = blueTeamId;
+		} 
+		else {
+			teamId = redTeamId;
+		};	
 	}
+
 	for (var j = 0; j < bambiksInGame.length; j++){
 		room.setPlayerTeam(bambiksInGame[j].id, teamId);
-		if (teamId == 1) {teamId = 2} else {teamId = 1};	
+		
+		if (teamId == redTeamId) {
+			teamId = blueTeamId;
+		} 
+		else {
+			teamId = redTeamId;
+		};	
 	}
 }
 
 function shuffle(array) {
-return array
-    .map(value => ({ value, sort: Math.random() }))
-    .sort((a, b) => a.sort - b.sort)
-    .map(({ value }) => value)
+	return array
+		.map(value => ({ value, sort: Math.random() }))
+		.sort((a, b) => a.sort - b.sort)
+		.map(({ value }) => value);
 }
 
-function isBambik(playerName){
+function isBambik(playerName) {
 	return bambiks.find(bambik => bambik == playerName);
 }
 
 function randomIntFromInterval(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min)
+  return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 function pointDistance(p1, p2) {
