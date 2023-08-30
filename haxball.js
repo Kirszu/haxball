@@ -8,62 +8,17 @@ room.setDefaultStadium("Big");
 room.setScoreLimit(5);
 room.setTimeLimit(5);
 
-class PlayerMessageHandler {
-    constructor(room) {
-        this.set = new Set();
-        this.room = room;
-    }
-
-    handle(player, message) {
-        switch (message) {
-            case 'p':
-                this.#TryToPause(player);
-                break;
-            case 'unp':
-                this.#TryToUnpause(player);
-            default:
-                break;
-        }
-    }
-
-    #TryToPause(player) {
-        if (this.set.has(player)) {
-            this.room.sendAnnouncement(player.name + ' już poprosił o przerwę.');
-            return;
-        }
-
-        this.room.pauseGame(true);
-        this.room.sendAnnouncement(player.name + ' prosi o przerwę.');
-    }
-
-    #TryToUnpause(player) {
-        if (!this.set.has(player)) {
-            this.room.sendAnnouncement(player.name + ': nie możesz odpauzować trwającej gry.');
-            return;
-        }
-        
-        this.set.delete(player);
-
-        this.room.sendAnnouncement(player.name + ' wrócił z przerwy.');
-
-        if (this.set.size === 0) {
-            this.room.pauseGame(false);
-        }
-    }
-}
-
 const highPlayerCount = 6;
 const hugePlayerCount = 8;
 const redTeamId = 1;
 const blueTeamId = 2;
 const bambiks = new Array("GżegożRasiak", "mekambe", "RomUald", "Jarko");
 
-const messageHandler = new PlayerMessageHandler(room);
-
 var lastTouchedPlayer = "";
 var playersInGame = new Array();
 var bambiksInGame = new Array();
 var playersThatTouchedTheBall = new Set();
+var pauseSet = new Set();
 
 // If there are no admins left in the room give admin to one of the remaining players.
 function updateAdmins() { 
@@ -194,6 +149,37 @@ function handleGameStart() {
 	playersThatTouchedTheBall.clear(); // Reset the set of players that reached the goal
 }
 
+function handleMessages(player, message) {
+	switch (message) {
+		case 'p':
+			if (pauseSet.has(player.name)) {
+				room.sendAnnouncement(player.name + ' już poprosił o przerwę.');
+				return;
+			}
+			pauseSet.add(player.name);
+
+			room.pauseGame(true);
+			room.sendAnnouncement(player.name + ' prosi o przerwę.');		
+			break;
+		case 'unp':
+			if (!pauseSet.has(player.name)) {
+				room.sendAnnouncement(player.name + ': nie możesz odpauzować trwającej gry.');
+				return;
+			}
+			
+			pauseSet.delete(player.name);
+		
+			room.sendAnnouncement(player.name + ' wrócił z przerwy.');
+		
+			if (pauseSet.size === 0) {
+				room.pauseGame(false);
+				room.sendAnnouncement('Wracamy do gry.');
+			}		
+		default:
+			break;
+	}
+}
+
 room.onGameTick = handleGameTick;
 room.onGameStart = handleGameStart;
-room.onPlayerChat = messageHandler.handle;
+room.onPlayerChat = handleMessages;
