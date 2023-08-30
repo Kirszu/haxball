@@ -131,14 +131,15 @@ function handleGameTick() {
 		var hadTouchedTheBall = playersThatTouchedTheBall.has(player.id);
 
 		// This check is here so that the event is only notified the first game tick in which the player is touching the ball.
-		if ( !hadTouchedTheBall ) { 
-			if ( distanceToBall < triggerDistance ) {
+		if (!hadTouchedTheBall) { 
+			if (distanceToBall < triggerDistance) {
 				playersThatTouchedTheBall.add(player.id);
 				lastTouchedPlayer = player;
 			}
-		}else{
+		}
+		else {
 			// If a player that had touched the ball moves away from the ball remove him from the set to allow the event to be notified again.
-			if ( distanceToBall > triggerDistance + 4 ) {
+			if (distanceToBall > triggerDistance + 4) {
 				playersThatTouchedTheBall.delete(player.id);
 			}
 		}
