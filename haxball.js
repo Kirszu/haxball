@@ -12,7 +12,7 @@ const highPlayerCount = 6;
 const hugePlayerCount = 8;
 const redTeamId = 1;
 const blueTeamId = 2;
-const bambiks = new Array("GżegożRasiak", "mekambe", "RomUald", "Jarko");
+const bambiks = new Array("GżegożRasiak", "RomUald", "Jarko");
 
 var lastTouchedPlayer = "";
 var playersInGame = new Array();
